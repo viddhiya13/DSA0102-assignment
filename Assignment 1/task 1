@@ -1,0 +1,212 @@
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+using namespace std;
+
+// Constants
+constexpr long long MIN_BALANCE_PAISE = 5000;
+constexpr int PEAK_SURCHARGE_PERCENT = 20;
+
+// Metro zones
+enum class Zone
+{
+    Inner,
+    Middle,
+    Outer
+};
+
+// Passenger class
+class Passenger
+{
+private:
+    string name;
+    int age;
+    bool isStudent;
+    bool isSenior;
+
+public:
+    Passenger(string n, int a, bool student, bool senior)
+        : name(n), age(a), isStudent(student), isSenior(senior) {}
+
+    string getName() const
+    {
+        return name;
+    }
+
+    int getAge() const
+    {
+        return age;
+    }
+
+    bool eligibleForConcession() const
+    {
+        return isStudent || isSenior;
+    }
+
+    void display() const
+    {
+        cout << "Passenger: " << name << endl;
+        cout << "Age: " << age << endl;
+    }
+};
+
+// FareTable class
+class FareTable
+{
+public:
+    static long long getBaseFare(Zone zone)
+    {
+        switch (zone)
+        {
+            case Zone::Inner:
+                return 1000;
+
+            case Zone::Middle:
+                return 2000;
+
+            case Zone::Outer:
+                return 3000;
+        }
+
+        return 0;
+    }
+
+    static long long calculateFare(
+        Zone zone,
+        bool peak,
+        const Passenger& passenger)
+    {
+        long long fare = getBaseFare(zone);
+
+        if (peak)
+        {
+            fare += fare * PEAK_SURCHARGE_PERCENT / 100;
+        }
+
+        if (passenger.eligibleForConcession())
+        {
+            fare = fare * 80 / 100;
+        }
+
+        return fare;
+    }
+};
+
+// SmartCard class
+class SmartCard
+{
+private:
+    int cardNumber;
+    long long balance;
+
+public:
+    SmartCard(int number, long long initialBalance)
+        : cardNumber(number), balance(initialBalance) {}
+
+    bool canTravel(long long fare) const
+    {
+        return fare >= 0 &&
+               balance >= fare &&
+               balance - fare >= MIN_BALANCE_PAISE;
+    }
+
+    bool deductFare(long long fare)
+    {
+        if (!canTravel(fare))
+        {
+            return false;
+        }
+
+        balance -= fare;
+        return true;
+    }
+
+    long long getBalance() const
+    {
+        return balance;
+    }
+
+    void display() const
+    {
+        cout << "Card Number: " << cardNumber << endl;
+        cout << "Balance: Rs "
+             << balance / 100 << "."
+             << setw(2) << setfill('0')
+             << balance % 100 << setfill(' ') << endl;
+    }
+};
+
+// Journey class
+class Journey
+{
+private:
+    Zone destination;
+    bool peakHour;
+
+public:
+    Journey(Zone z, bool peak)
+        : destination(z), peakHour(peak) {}
+
+    void process(SmartCard& card,
+                 const Passenger& passenger) const
+    {
+        long long fare =
+            FareTable::calculateFare(destination,
+                                     peakHour,
+                                     passenger);
+
+        cout << "Journey Fare: Rs "
+             << fare / 100 << "."
+             << setw(2) << setfill('0')
+             << fare % 100 << setfill(' ') << endl;
+
+        if (card.deductFare(fare))
+        {
+            cout << "Journey Approved" << endl;
+        }
+        else
+        {
+            cout << "Journey Denied: Insufficient Balance" << endl;
+        }
+
+        cout << "Remaining Balance: Rs "
+             << card.getBalance() / 100 << "."
+             << setw(2) << setfill('0')
+             << card.getBalance() % 100
+             << setfill(' ') << endl;
+    }
+};
+
+int main()
+{
+    Passenger passenger("Arun", 21, false, false);
+
+    SmartCard card(1001, 10000);
+
+    cout << "NAMMA METRO SMART CARD SYSTEM" << endl;
+    cout << "-----------------------------" << endl;
+
+    passenger.display();
+
+    cout << "\nInitial Card Details" << endl;
+    card.display();
+
+    Journey journeys[] =
+    {
+        Journey(Zone::Inner, false),
+        Journey(Zone::Middle, true),
+        Journey(Zone::Outer, false)
+    };
+
+    for (int i = 0; i < 3; i++)
+    {
+        cout << "\nJourney " << i + 1 << endl;
+        journeys[i].process(card, passenger);
+    }
+
+    cout << "\nFinal Card Details" << endl;
+    card.display();
+
+    return 0;
+}
