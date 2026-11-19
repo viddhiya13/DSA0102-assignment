@@ -1,0 +1,57 @@
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a{7};
+    int b{2};
+
+    // Integer division
+    double c = a / b;
+
+    // Explicit conversion
+    double d = static_cast<double>(a) / b;
+
+    cout << c << ' ' << d << '\n';
+
+    // Character conversion
+    char ch = static_cast<char>('A' + 2);
+
+    cout << ch << ' '
+         << static_cast<int>(ch) + 1 << '\n';
+
+    // Integer to bool conversion
+    bool flag = 5;
+
+    cout << flag << ' '
+         << boolalpha << flag << '\n';
+
+    // Signed and unsigned comparison
+    unsigned int u{1};
+    int s{-1};
+
+    cout << (s < static_cast<int>(u)
+             ? "s < u"
+             : "s >= u") << '\n';
+
+    // Brace initialization
+    int number{3};
+
+    cout << "Number: " << number << endl;
+
+    // Explicit type conversions
+    double rupees{25.75};
+    int wholeRupees = static_cast<int>(rupees);
+
+    cout << "Rupees: " << rupees << endl;
+    cout << "Whole Rupees: " << wholeRupees << endl;
+
+    // Integer division correction
+    double result =
+        static_cast<double>(10) / 3;
+
+    cout << "Division Result: " << result << endl;
+
+    return 0;
+}
