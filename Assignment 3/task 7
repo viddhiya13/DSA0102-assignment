@@ -1,0 +1,177 @@
+#include <iostream>
+#include <cmath>
+#include <stdexcept>
+using namespace std;
+
+class Complex {
+private:
+    double realPart;
+    double imaginaryPart;
+
+public:
+    // Default constructor
+    Complex()
+        : realPart(0), imaginaryPart(0) {}
+
+    // Constructor with real part
+    Complex(double real)
+        : realPart(real), imaginaryPart(0) {}
+
+    // Constructor with real and imaginary parts
+    Complex(double real, double imaginary)
+        : realPart(real), imaginaryPart(imaginary) {}
+
+    double real() const {
+        return realPart;
+    }
+
+    double imag() const {
+        return imaginaryPart;
+    }
+
+    // Magnitude
+    double magnitude() const {
+        return sqrt(
+            realPart * realPart +
+            imaginaryPart * imaginaryPart
+        );
+    }
+
+    // Addition
+    Complex operator+(const Complex& other) const {
+        return Complex(
+            realPart + other.realPart,
+            imaginaryPart + other.imaginaryPart
+        );
+    }
+
+    // Subtraction
+    Complex operator-(const Complex& other) const {
+        return Complex(
+            realPart - other.realPart,
+            imaginaryPart - other.imaginaryPart
+        );
+    }
+
+    // Multiplication
+    Complex operator*(const Complex& other) const {
+        return Complex(
+            realPart * other.realPart -
+            imaginaryPart * other.imaginaryPart,
+
+            realPart * other.imaginaryPart +
+            imaginaryPart * other.realPart
+        );
+    }
+
+    // Division
+    Complex operator/(const Complex& other) const {
+        double denominator =
+            other.realPart * other.realPart +
+            other.imaginaryPart * other.imaginaryPart;
+
+        if (denominator == 0) {
+            throw domain_error("Division by zero");
+        }
+
+        return Complex(
+            (realPart * other.realPart +
+             imaginaryPart * other.imaginaryPart) / denominator,
+
+            (imaginaryPart * other.realPart -
+             realPart * other.imaginaryPart) / denominator
+        );
+    }
+
+    // Equality operator
+    bool operator==(const Complex& other) const {
+        const double epsilon = 1e-9;
+
+        return fabs(realPart - other.realPart) < epsilon &&
+               fabs(imaginaryPart - other.imaginaryPart) < epsilon;
+    }
+
+    // Output stream operator
+    friend ostream& operator<<(ostream& out, const Complex& value) {
+        out << value.realPart;
+
+        if (value.imaginaryPart >= 0) {
+            out << " + j" << value.imaginaryPart;
+        }
+        else {
+            out << " - j" << -value.imaginaryPart;
+        }
+
+        return out;
+    }
+};
+
+int main() {
+    try {
+        const double pi = acos(-1.0);
+        const double frequency = 50.0;
+
+        double omega = 2 * pi * frequency;
+
+        double resistance = 100.0;
+        double inductance = 0.1;
+        double capacitance = 100e-6;
+
+        // Resistor impedance
+        Complex resistor(resistance, 0);
+
+        // Inductor impedance
+        Complex inductor(0, omega * inductance);
+
+        // Capacitor impedance
+        Complex capacitor(0, -1 / (omega * capacitance));
+
+        // Series circuit
+        Complex seriesImpedance =
+            resistor + inductor + capacitor;
+
+        cout << "Resistor Impedance: "
+             << resistor << endl;
+
+        cout << "Inductor Impedance: "
+             << inductor << endl;
+
+        cout << "Capacitor Impedance: "
+             << capacitor << endl;
+
+        cout << "\nSeries Impedance: "
+             << seriesImpedance << endl;
+
+        cout << "Series Magnitude: "
+             << seriesImpedance.magnitude()
+             << " Ohms" << endl;
+
+        // Parallel circuit
+        Complex z1(100, 0);
+        Complex z2(0, 50);
+
+        Complex parallelImpedance =
+            (z1 * z2) / (z1 + z2);
+
+        cout << "\nParallel Impedance: "
+             << parallelImpedance << endl;
+
+        cout << "Parallel Magnitude: "
+             << parallelImpedance.magnitude()
+             << " Ohms" << endl;
+
+        // Division by zero test
+        Complex zero(0, 0);
+
+        cout << "\nDivision by Zero Test:" << endl;
+
+        Complex result = z1 / zero;
+
+        cout << result << endl;
+    }
+    catch (const domain_error& error) {
+        cout << "Error: " << error.what() << endl;
+    }
+
+    return 0;
+}
