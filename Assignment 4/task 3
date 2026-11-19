@@ -1,0 +1,166 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Address {
+private:
+    string city;
+    int pin;
+
+public:
+    Address(const string& c, int p) : city(c), pin(p) {
+        cout << "Address constructor\n";
+    }
+
+    ~Address() {
+        cout << "Address destructor\n";
+    }
+
+    string str() const {
+        return city + "-" + to_string(pin);
+    }
+};
+
+class Course {
+private:
+    string courseName;
+
+public:
+    Course(const string& c) : courseName(c) {
+        cout << "Course constructor\n";
+    }
+
+    ~Course() {
+        cout << "Course destructor\n";
+    }
+
+    void display() const {
+        cout << "Course: " << courseName << '\n';
+    }
+};
+
+class Person {
+protected:
+    string name;
+    int age;
+    Address address;
+
+public:
+    Person(const string& n, int a, const string& city, int pin)
+        : name(n), age(a), address(city, pin) {
+        cout << "Person constructor\n";
+    }
+
+    virtual ~Person() {
+        cout << "Person destructor\n";
+    }
+
+    void displayPerson() const {
+        cout << "Name: " << name << '\n';
+        cout << "Age: " << age << '\n';
+        cout << "Address: " << address.str() << '\n';
+    }
+};
+
+class Student : virtual public Person {
+private:
+    long long regNo;
+    Course course;
+
+public:
+    Student(const string& n, int a, long long r,
+            const string& city, int pin, const string& c)
+        : Person(n, a, city, pin),
+          regNo(r), course(c) {
+        cout << "Student constructor\n";
+    }
+
+    ~Student() override {
+        cout << "Student destructor\n";
+    }
+
+    void display() const {
+        displayPerson();
+        cout << "Register Number: " << regNo << '\n';
+        course.display();
+    }
+};
+
+class Staff : virtual public Person {
+private:
+    string department;
+
+public:
+    Staff(const string& n, int a, const string& city,
+          int pin, const string& dept)
+        : Person(n, a, city, pin), department(dept) {
+        cout << "Staff constructor\n";
+    }
+
+    ~Staff() override {
+        cout << "Staff destructor\n";
+    }
+
+    void display() const {
+        displayPerson();
+        cout << "Department: " << department << '\n';
+    }
+};
+
+class TeachingAssistant : public Student, public Staff {
+private:
+    int workingHours;
+
+public:
+    TeachingAssistant(const string& n, int a, long long r,
+                      const string& city, int pin,
+                      const string& courseName,
+                      const string& dept, int hours)
+        : Person(n, a, city, pin),
+          Student(n, a, r, city, pin, courseName),
+          Staff(n, a, city, pin, dept),
+          workingHours(hours) {
+        cout << "TeachingAssistant constructor\n";
+    }
+
+    ~TeachingAssistant() override {
+        cout << "TeachingAssistant destructor\n";
+    }
+
+    void displayTA() const {
+        displayPerson();
+        cout << "Working Hours: " << workingHours << '\n';
+    }
+};
+
+int main() {
+    cout << "\n===== STUDENT OBJECT =====\n";
+    {
+        Student s("Kavya", 19, 192311001,
+                  "Salem", 636001, "C++ Programming");
+        s.display();
+    }
+
+    cout << "\n===== STAFF OBJECT =====\n";
+    {
+        Staff st("Arun", 35, "Chennai", 600001, "CSE");
+        st.display();
+    }
+
+    cout << "\n===== TEACHING ASSISTANT OBJECT =====\n";
+    {
+        TeachingAssistant ta(
+            "Meena", 24, 192311002,
+            "Coimbatore", 641001,
+            "Data Structures", "Computer Science", 20
+        );
+        ta.displayTA();
+    }
+
+    cout << "\n===== ASSIGNMENT TODO 1 TEST =====\n";
+
+    // Person, regNo and Address are initialized using
+    // the member initializer list in the Student constructor.
+
+    return 0;
+}
