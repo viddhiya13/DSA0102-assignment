@@ -1,0 +1,235 @@
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+using namespace std;
+
+// Centralized fare constants
+constexpr long long INNER_FARE = 1000;
+constexpr long long MIDDLE_FARE = 2000;
+constexpr long long OUTER_FARE = 3000;
+
+constexpr int PEAK_SURCHARGE_PERCENT = 20;
+constexpr long long MIN_BALANCE_PAISE = 5000;
+
+enum class Zone
+{
+    Inner,
+    Middle,
+    Outer
+};
+
+// Passenger class
+class Passenger
+{
+private:
+    string name;
+    bool student;
+    bool seniorCitizen;
+
+public:
+    Passenger(string n, bool s, bool senior)
+        : name(n), student(s), seniorCitizen(senior) {}
+
+    string getName() const
+    {
+        return name;
+    }
+
+    bool hasConcession() const
+    {
+        return student || seniorCitizen;
+    }
+};
+
+// Fare calculator
+class FareCalculator
+{
+public:
+    static long long getBaseFare(Zone zone)
+    {
+        switch (zone)
+        {
+            case Zone::Inner:
+                return INNER_FARE;
+
+            case Zone::Middle:
+                return MIDDLE_FARE;
+
+            case Zone::Outer:
+                return OUTER_FARE;
+        }
+
+        return -1;
+    }
+
+    static bool isPeakHour(int hour)
+    {
+        return (hour >= 8 && hour < 10) ||
+               (hour >= 17 && hour < 20);
+    }
+
+    static long long calculateFare(
+        Zone zone,
+        int hour,
+        const Passenger& passenger)
+    {
+        long long fare = getBaseFare(zone);
+
+        if (fare < 0 || hour < 0 || hour > 23)
+        {
+            return -1;
+        }
+
+        if (isPeakHour(hour))
+        {
+            fare +=
+                fare * PEAK_SURCHARGE_PERCENT / 100;
+        }
+
+        if (passenger.hasConcession())
+        {
+            fare = fare * 80 / 100;
+        }
+
+        return fare;
+    }
+};
+
+// SmartCard class
+class SmartCard
+{
+private:
+    long long balance;
+    int cardNumber;
+
+public:
+    SmartCard(int number, long long amount)
+        : balance(amount), cardNumber(number) {}
+
+    bool canTravel(long long fare) const
+    {
+        return fare >= 0 &&
+               balance >= fare &&
+               balance - fare >= MIN_BALANCE_PAISE;
+    }
+
+    bool deduct(long long fare)
+    {
+        if (!canTravel(fare))
+        {
+            return false;
+        }
+
+        balance -= fare;
+        return true;
+    }
+
+    bool recharge(long long amount)
+    {
+        if (amount <= 0)
+        {
+            return false;
+        }
+
+        if (balance > 1000000000000LL - amount)
+        {
+            return false;
+        }
+
+        balance += amount;
+        return true;
+    }
+
+    long long getBalance() const
+    {
+        return balance;
+    }
+
+    void display() const
+    {
+        cout << "Card Number: " << cardNumber << endl;
+
+        cout << "Balance: Rs "
+             << balance / 100 << "."
+             << setw(2) << setfill('0')
+             << balance % 100 << setfill(' ')
+             << endl;
+    }
+};
+
+int main()
+{
+    cout << "NAMMA METRO FINAL FARE SYSTEM" << endl;
+    cout << "------------------------------" << endl;
+
+    Passenger p1("Arun", false, false);
+    Passenger p2("Kumar", true, false);
+
+    SmartCard card1(1001, 10000);
+    SmartCard card2(1002, 20000);
+
+    cout << "\nPassenger: " << p1.getName() << endl;
+    card1.display();
+
+    struct Journey
+    {
+        Zone zone;
+        int hour;
+    };
+
+    Journey journeys[] =
+    {
+        {Zone::Inner, 7},
+        {Zone::Middle, 9},
+        {Zone::Outer, 14},
+        {Zone::Inner, 18}
+    };
+
+    long long totalCollection = 0;
+
+    for (const Journey& journey : journeys)
+    {
+        long long fare =
+            FareCalculator::calculateFare(
+                journey.zone,
+                journey.hour,
+                p1);
+
+        cout << "\nFare: Rs "
+             << fare / 100 << "."
+             << setw(2) << setfill('0')
+             << fare % 100 << setfill(' ');
+
+        if (card1.deduct(fare))
+        {
+            cout << "\nJourney Approved" << endl;
+            totalCollection += fare;
+        }
+        else
+        {
+            cout << "\nJourney Denied" << endl;
+        }
+
+        cout << "Balance: Rs "
+             << card1.getBalance() / 100.0
+             << endl;
+    }
+
+    cout << "\nSTUDENT CONCESSION" << endl;
+
+    long long studentFare =
+        FareCalculator::calculateFare(
+            Zone::Outer, 9, p2);
+
+    cout << "Student Fare: Rs "
+         << studentFare / 100.0 << endl;
+
+    cout << "\nTOTAL COLLECTION: Rs "
+         << totalCollection / 100.0 << endl;
+
+    cout << "\nFINAL CARD DETAILS" << endl;
+    card1.display();
+
+    return 0;
+}
