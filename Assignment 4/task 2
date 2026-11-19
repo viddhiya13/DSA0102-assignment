@@ -1,0 +1,132 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person {
+protected:
+    string name;
+    int id;
+    string phone;
+
+public:
+    Person(const string& n, int i, const string& p)
+        : name(n), id(i), phone(p) {}
+
+    virtual void display() const {
+        cout << "Name: " << name << '\n';
+        cout << "ID: " << id << '\n';
+        cout << "Phone: " << phone << '\n';
+    }
+
+    virtual ~Person() = default;
+};
+
+class Student : virtual public Person {
+protected:
+    string programme;
+    double cgpa;
+
+public:
+    Student(const string& n, int i, const string& p,
+            const string& prog, double gpa)
+        : Person(n, i, p),
+          programme(prog), cgpa(gpa) {}
+
+    void display() const override {
+        Person::display();
+        cout << "Programme: " << programme << '\n';
+        cout << "CGPA: " << cgpa << '\n';
+    }
+};
+
+class Staff : virtual public Person {
+protected:
+    string department;
+    double salary;
+
+public:
+    Staff(const string& n, int i, const string& p,
+          const string& dept, double sal)
+        : Person(n, i, p),
+          department(dept), salary(sal) {}
+
+    void display() const override {
+        Person::display();
+        cout << "Department: " << department << '\n';
+        cout << "Salary: " << salary << '\n';
+    }
+};
+
+class TeachingAssistant : public Student, public Staff {
+private:
+    int workingHours;
+
+public:
+    TeachingAssistant(const string& n, int i, const string& p,
+                      const string& prog, double gpa,
+                      const string& dept, double sal, int hours)
+        : Person(n, i, p),
+          Student(n, i, p, prog, gpa),
+          Staff(n, i, p, dept, sal),
+          workingHours(hours) {}
+
+    void display() const override {
+        Person::display();
+        cout << "Programme: " << programme << '\n';
+        cout << "CGPA: " << cgpa << '\n';
+        cout << "Department: " << department << '\n';
+        cout << "Salary: " << salary << '\n';
+        cout << "Working Hours: " << workingHours << '\n';
+    }
+};
+
+class ResearchScholar : public Student {
+private:
+    double fellowship;
+
+public:
+    ResearchScholar(const string& n, int i, const string& p,
+                    const string& prog, double gpa, double f)
+        : Person(n, i, p),
+          Student(n, i, p, prog, gpa),
+          fellowship(f) {}
+
+    void display() const override {
+        Student::display();
+        cout << "Fellowship: " << fellowship << '\n';
+    }
+};
+
+int main() {
+    cout << "----- STUDENT -----\n";
+    Student s("Kavya", 101, "9876543210", "CSE", 8.9);
+    s.display();
+
+    cout << "\n----- STAFF -----\n";
+    Staff st("Ravi", 102, "9876501234", "IT", 45000);
+    st.display();
+
+    cout << "\n----- TEACHING ASSISTANT -----\n";
+    TeachingAssistant ta(
+        "Meena", 103, "9876512345",
+        "CSE", 9.1, "Computer Science", 25000, 20
+    );
+    ta.display();
+
+    cout << "\n----- RESEARCH SCHOLAR -----\n";
+    ResearchScholar rs(
+        "Arun", 104, "9876523456",
+        "M.Tech", 9.3, 15000
+    );
+    rs.display();
+
+    cout << "\n----- VIRTUAL BASE CLASS TEST -----\n";
+    TeachingAssistant test(
+        "Priya", 105, "9876534567",
+        "ECE", 8.7, "Electronics", 22000, 15
+    );
+
+    cout << "Teaching Assistant object has one shared Person base.\n";
+
+    return 0;
+}
