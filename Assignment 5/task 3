@@ -1,0 +1,53 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Parcel
+{
+    double weightKg;
+    bool express;
+    bool insured;
+};
+
+// Weight in kilograms.
+// Default arguments are supplied from right to left.
+double charge(double weightKg, bool express = false, bool insured = false)
+{
+    double amount = weightKg * 50.0;
+
+    if (express)
+        amount += 30.0;
+
+    if (insured)
+        amount += 20.0;
+
+    return amount;
+}
+
+// Weight in grams.
+double charge(int weightGrams, bool express = false, bool insured = false)
+{
+    double weightKg = weightGrams / 1000.0;
+    return charge(weightKg, express, insured);
+}
+
+// Parcel object overload.
+double charge(const Parcel& parcel)
+{
+    return charge(parcel.weightKg, parcel.express, parcel.insured);
+}
+
+int main()
+{
+    Parcel parcel1{3.0, true, true};
+
+    cout << "charge(2)       = " << charge(2) << '\n';
+    cout << "charge(2.0f)    = " << charge(2.0f) << '\n';
+    cout << "charge(2.0)     = " << charge(2.0) << '\n';
+    cout << "charge(2,true)  = " << charge(2.0, true) << '\n';
+    cout << "charge(parcel1) = " << charge(parcel1) << '\n';
+    cout << "charge(500,true,true) = "
+         << charge(500, true, true) << '\n';
+
+    return 0;
+}
