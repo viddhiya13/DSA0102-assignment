@@ -1,0 +1,149 @@
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+constexpr long long MIN_BALANCE_PAISE = 5000;
+
+// PROCEDURAL APPROACH
+
+long long proceduralFare(int zone, bool peak)
+{
+    long long fare = 0;
+
+    switch (zone)
+    {
+        case 1:
+            fare = 1000;
+            break;
+
+        case 2:
+            fare = 2000;
+            break;
+
+        case 3:
+            fare = 3000;
+            break;
+
+        default:
+            return -1;
+    }
+
+    if (peak)
+    {
+        fare += fare * 20 / 100;
+    }
+
+    return fare;
+}
+
+bool proceduralCanTravel(long long balance, long long fare)
+{
+    return fare >= 0 &&
+           balance >= fare &&
+           balance - fare >= MIN_BALANCE_PAISE;
+}
+
+// OBJECT-ORIENTED APPROACH
+
+class SmartCard
+{
+private:
+    int cardNumber;
+    long long balance;
+
+public:
+    SmartCard(int number, long long amount)
+        : cardNumber(number), balance(amount) {}
+
+    bool canTravel(long long fare) const
+    {
+        return fare >= 0 &&
+               balance >= fare &&
+               balance - fare >= MIN_BALANCE_PAISE;
+    }
+
+    bool deduct(long long fare)
+    {
+        if (!canTravel(fare))
+        {
+            return false;
+        }
+
+        balance -= fare;
+        return true;
+    }
+
+    long long getBalance() const
+    {
+        return balance;
+    }
+
+    void display() const
+    {
+        cout << "Card Number: " << cardNumber << endl;
+        cout << "Balance: Rs "
+             << balance / 100 << "."
+             << setw(2) << setfill('0')
+             << balance % 100 << setfill(' ')
+             << endl;
+    }
+};
+
+int main()
+{
+    cout << "PROCEDURAL METHOD" << endl;
+
+    long long proceduralBalance = 10000;
+
+    int zones[] = {1, 2, 3};
+    bool peakHours[] = {false, true, false};
+
+    for (int i = 0; i < 3; i++)
+    {
+        long long f =
+            proceduralFare(zones[i], peakHours[i]);
+
+        if (proceduralCanTravel(proceduralBalance, f))
+        {
+            proceduralBalance -= f;
+            cout << "Journey Approved" << endl;
+        }
+        else
+        {
+            cout << "Journey Denied" << endl;
+        }
+
+        cout << "Balance: Rs "
+             << proceduralBalance / 100.0 << endl;
+    }
+
+    cout << "\nOBJECT ORIENTED METHOD" << endl;
+
+    SmartCard card(1001, 10000);
+
+    card.display();
+
+    for (int i = 0; i < 3; i++)
+    {
+        long long f =
+            proceduralFare(zones[i], peakHours[i]);
+
+        if (card.deduct(f))
+        {
+            cout << "Journey Approved" << endl;
+        }
+        else
+        {
+            cout << "Journey Denied" << endl;
+        }
+
+        cout << "Remaining Balance: Rs "
+             << card.getBalance() / 100.0 << endl;
+    }
+
+    cout << "\nFINAL SMART CARD DETAILS" << endl;
+    card.display();
+
+    return 0;
+}
