@@ -1,0 +1,146 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <chrono>
+using namespace std;
+using namespace std::chrono;
+
+const int CAPACITY = 50;
+
+// Original design: shift elements when full.
+class ShiftingHistory
+{
+private:
+    string transactions[CAPACITY];
+    int count;
+
+public:
+    ShiftingHistory() : count(0) {}
+
+    void add(const string& transaction)
+    {
+        if (count < CAPACITY)
+        {
+            transactions[count] = transaction;
+            count++;
+        }
+        else
+        {
+            for (int i = 0; i < CAPACITY - 1; i++)
+                transactions[i] = transactions[i + 1];
+
+            transactions[CAPACITY - 1] = transaction;
+        }
+    }
+
+    void display() const
+    {
+        cout << "Shifting history:\n";
+
+        for (int i = 0; i < count; i++)
+            cout << transactions[i] << '\n';
+    }
+
+    int size() const
+    {
+        return count;
+    }
+};
+
+// Redesigned circular-buffer implementation.
+class CircularHistory
+{
+private:
+    string transactions[CAPACITY];
+    int start;
+    int count;
+
+public:
+    CircularHistory() : start(0), count(0) {}
+
+    void add(const string& transaction)
+    {
+        if (count < CAPACITY)
+        {
+            int position = (start + count) % CAPACITY;
+            transactions[position] = transaction;
+            count++;
+        }
+        else
+        {
+            transactions[start] = transaction;
+            start = (start + 1) % CAPACITY;
+        }
+    }
+
+    void display() const
+    {
+        cout << "Circular-buffer history:\n";
+
+        for (int i = 0; i < count; i++)
+        {
+            int position = (start + i) % CAPACITY;
+            cout << transactions[position] << '\n';
+        }
+    }
+
+    int size() const
+    {
+        return count;
+    }
+};
+
+int main()
+{
+    const int OPERATIONS = 1000000;
+
+    ShiftingHistory original;
+    CircularHistory redesigned;
+
+    // Same input is supplied to both implementations.
+    vector<string> input;
+    input.reserve(OPERATIONS);
+
+    for (int i = 1; i <= OPERATIONS; i++)
+        input.push_back("Transaction " + to_string(i));
+
+    auto startOriginal = high_resolution_clock::now();
+
+    for (const string& transaction : input)
+        original.add(transaction);
+
+    auto endOriginal = high_resolution_clock::now();
+
+    auto startRedesigned = high_resolution_clock::now();
+
+    for (const string& transaction : input)
+        redesigned.add(transaction);
+
+    auto endRedesigned = high_resolution_clock::now();
+
+    double originalTime =
+        duration<double, milli>(endOriginal - startOriginal).count();
+
+    double redesignedTime =
+        duration<double, milli>(endRedesigned - startRedesigned).count();
+
+    cout << "TRANSACTION HISTORY COMPARISON\n";
+    cout << "Total insertions: " << OPERATIONS << '\n';
+    cout << "Capacity: " << CAPACITY << '\n';
+
+    cout << "\nOriginal shifting design\n";
+    cout << "Stored transactions: " << original.size() << '\n';
+    cout << "Time: " << originalTime << " ms\n";
+
+    cout << "\nRedesigned circular buffer\n";
+    cout << "Stored transactions: " << redesigned.size() << '\n';
+    cout << "Time: " << redesignedTime << " ms\n";
+
+    cout << "\nLast five transactions from redesigned buffer:\n";
+
+    // Display the final five transactions.
+    // The complete buffer is displayed in chronological order.
+    redesigned.display();
+
+    return 0;
+}
