@@ -1,0 +1,96 @@
+
+#include <iostream>
+#include <iomanip>
+#include <climits>
+using namespace std;
+
+int main()
+{
+    const long long FARE_PAISE = 3000;
+
+    const long long JOURNEYS[] =
+    {
+        20000,
+        500000,
+        3000000
+    };
+
+    cout << "METRO NETWORK COLLECTION ANALYSIS" << endl;
+    cout << "-----------------------------------" << endl;
+
+    cout << fixed << setprecision(2);
+
+    for (long long count : JOURNEYS)
+    {
+        long long integerTotal =
+            count * FARE_PAISE;
+
+        double doubleTotal =
+            static_cast<double>(count) * 30.0;
+
+        cout << "\nNumber of Journeys: "
+             << count << endl;
+
+        cout << "Integer Paise Total: "
+             << integerTotal << endl;
+
+        cout << "Integer Rupees Total: Rs "
+             << integerTotal / 100.0 << endl;
+
+        cout << "Double Rupees Total: Rs "
+             << doubleTotal << endl;
+
+        cout << "Difference: Rs "
+             << doubleTotal - integerTotal / 100.0
+             << endl;
+
+        if (integerTotal > INT_MAX)
+        {
+            cout << "Integer overflow risk: YES"
+                 << endl;
+        }
+        else
+        {
+            cout << "Integer overflow risk: NO"
+                 << endl;
+        }
+    }
+
+    // Integer and long long comparison
+    int intTotal = 0;
+    long long longTotal = 0;
+
+    for (int i = 0; i < 100000; i++)
+    {
+        intTotal += 3000;
+        longTotal += 3000;
+    }
+
+    cout << "\nTYPE COMPARISON" << endl;
+    cout << "Int Total: " << intTotal << endl;
+    cout << "Long Long Total: " << longTotal << endl;
+
+    // Floating-point accumulation
+    double doubleSum = 0.0;
+    long long paiseSum = 0;
+
+    for (int i = 0; i < 1000000; i++)
+    {
+        doubleSum += 0.10;
+        paiseSum += 10;
+    }
+
+    cout << "\nPRECISION TEST" << endl;
+    cout << "Double Sum: " << doubleSum << endl;
+    cout << "Integer Paise Sum: "
+         << paiseSum / 100.0 << endl;
+
+    cout << "\nDATA TYPE SIZES" << endl;
+    cout << "int: " << sizeof(int) << " bytes" << endl;
+    cout << "long long: " << sizeof(long long)
+         << " bytes" << endl;
+    cout << "double: " << sizeof(double)
+         << " bytes" << endl;
+
+    return 0;
+}
