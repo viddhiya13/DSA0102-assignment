@@ -1,0 +1,154 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class AuditoriumEvent {
+private:
+    string eventName;
+    int rows;
+    int seatsPerRow;
+    char** seatMap;
+    int bookedCount;
+
+public:
+    // Dynamic constructor
+    AuditoriumEvent(string name, int r, int s)
+        : eventName(name),
+          rows(r > 0 ? r : 0),
+          seatsPerRow(s > 0 ? s : 0),
+          seatMap(nullptr),
+          bookedCount(0) {
+
+        if (rows > 0 && seatsPerRow > 0) {
+            seatMap = new char*[rows];
+
+            int allocatedRows = 0;
+
+            try {
+                for (; allocatedRows < rows; allocatedRows++) {
+                    seatMap[allocatedRows] = new char[seatsPerRow];
+
+                    for (int j = 0; j < seatsPerRow; j++) {
+                        seatMap[allocatedRows][j] = 'O';
+                    }
+                }
+            }
+            catch (...) {
+                for (int i = 0; i < allocatedRows; i++) {
+                    delete[] seatMap[i];
+                }
+
+                delete[] seatMap;
+                seatMap = nullptr;
+                throw;
+            }
+        }
+
+        cout << "Event Created: " << eventName << endl;
+    }
+
+    // Prevent shallow copying
+    AuditoriumEvent(const AuditoriumEvent&) = delete;
+    AuditoriumEvent& operator=(const AuditoriumEvent&) = delete;
+
+    // Destructor
+    ~AuditoriumEvent() {
+        cout << "Event Closed: " << eventName
+             << " | Booked Seats: " << bookedCount << endl;
+
+        for (int i = 0; i < rows; i++) {
+            delete[] seatMap[i];
+        }
+
+        delete[] seatMap;
+    }
+
+    void bookSeat(int row, int seat) {
+        if (row < 0 || row >= rows ||
+            seat < 0 || seat >= seatsPerRow) {
+            cout << "Invalid seat position" << endl;
+            return;
+        }
+
+        if (seatMap[row][seat] == 'X') {
+            cout << "Seat already booked" << endl;
+            return;
+        }
+
+        seatMap[row][seat] = 'X';
+        bookedCount++;
+
+        cout << "Seat booked successfully" << endl;
+    }
+
+    void cancelSeat(int row, int seat) {
+        if (row < 0 || row >= rows ||
+            seat < 0 || seat >= seatsPerRow) {
+            cout << "Invalid seat position" << endl;
+            return;
+        }
+
+        if (seatMap[row][seat] == 'O') {
+            cout << "Seat is not booked" << endl;
+            return;
+        }
+
+        seatMap[row][seat] = 'O';
+        bookedCount--;
+
+        cout << "Booking cancelled" << endl;
+    }
+
+    void displaySeats() const {
+        cout << "\nSeat Map: " << eventName << endl;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < seatsPerRow; j++) {
+                cout << seatMap[i][j] << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    cout << "STACK EVENT" << endl;
+
+    AuditoriumEvent event1("College Fest", 3, 4);
+
+    event1.bookSeat(0, 1);
+    event1.bookSeat(2, 3);
+
+    event1.displaySeats();
+
+    event1.cancelSeat(0, 1);
+
+    event1.displaySeats();
+
+    cout << "\nHEAP EVENT" << endl;
+
+    AuditoriumEvent* event2 =
+        new AuditoriumEvent("Conference", 2, 3);
+
+    event2->bookSeat(1, 1);
+    event2->displaySeats();
+
+    delete event2;
+
+    cout << "\nBLOCK EVENT" << endl;
+
+    {
+        AuditoriumEvent event3("Workshop", 2, 2);
+
+        event3.bookSeat(0, 0);
+        event3.displaySeats();
+    }
+
+    cout << "\nZERO ROW EVENT" << endl;
+
+    AuditoriumEvent event4("Empty Event", 0, 10);
+
+    event4.displaySeats();
+
+    return 0;
+}
