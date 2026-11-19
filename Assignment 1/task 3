@@ -1,0 +1,89 @@
+
+#include <iostream>
+#include <climits>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+int main()
+{
+    // Data types
+    bool peakHour = true;
+    char zoneCode = 'A';
+    int hour = 9;
+    long long balancePaise = 10000;
+    long long farePaise = 3000;
+    unsigned int zoneNumber = 2;
+    double rupees = 100.50;
+    float surcharge = 20.0f;
+    auto journeys = 3000000LL;
+
+    cout << "METRO DATA TYPE ANALYSIS" << endl;
+    cout << "------------------------" << endl;
+
+    cout << "Size of bool: " << sizeof(bool) << endl;
+    cout << "Size of char: " << sizeof(char) << endl;
+    cout << "Size of int: " << sizeof(int) << endl;
+    cout << "Size of unsigned int: " << sizeof(unsigned int) << endl;
+    cout << "Size of long long: " << sizeof(long long) << endl;
+    cout << "Size of float: " << sizeof(float) << endl;
+    cout << "Size of double: " << sizeof(double) << endl;
+
+    cout << "\nINTIMUM AND MAXIMUM VALUES" << endl;
+    cout << "INT_MIN: " << INT_MIN << endl;
+    cout << "INT_MAX: " << INT_MAX << endl;
+    cout << "LLONG_MAX: " << LLONG_MAX << endl;
+
+    cout << "\nJOURNEY DETAILS" << endl;
+    cout << "Peak Hour: " << boolalpha << peakHour << endl;
+    cout << "Zone Code: " << zoneCode << endl;
+    cout << "Hour: " << hour << endl;
+    cout << "Zone Number: " << zoneNumber << endl;
+
+    cout << fixed << setprecision(2);
+    cout << "Rupees: " << rupees << endl;
+    cout << "Surcharge: " << surcharge << "%" << endl;
+
+    cout << "\nMONEY IN PAISE" << endl;
+    cout << "Balance: Rs " << balancePaise / 100.0 << endl;
+    cout << "Fare: Rs " << farePaise / 100.0 << endl;
+
+    if (balancePaise >= farePaise)
+    {
+        balancePaise -= farePaise;
+    }
+
+    cout << "Remaining Balance: Rs "
+         << balancePaise / 100.0 << endl;
+
+    long long dailyCollection =
+        farePaise * journeys;
+
+    cout << "\nNETWORK COLLECTION" << endl;
+    cout << "Journeys: " << journeys << endl;
+    cout << "Collection in Paise: " << dailyCollection << endl;
+    cout << "Collection in Rupees: "
+         << dailyCollection / 100.0 << endl;
+
+    // Floating-point precision demonstration
+    double doubleTotal = 0.0;
+
+    for (int i = 0; i < 1000000; i++)
+    {
+        doubleTotal += 0.10;
+    }
+
+    long long paiseTotal = 0;
+
+    for (int i = 0; i < 1000000; i++)
+    {
+        paiseTotal += 10;
+    }
+
+    cout << "\nPRECISION COMPARISON" << endl;
+    cout << "Double Total: " << doubleTotal << endl;
+    cout << "Integer Paise Total: "
+         << paiseTotal / 100.0 << endl;
+
+    return 0;
+}
