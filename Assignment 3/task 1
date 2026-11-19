@@ -1,0 +1,65 @@
+#include <iostream>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
+class Book {
+private:
+    string title;
+    string author;
+    int copies;
+
+    static int validateCopies(int value) {
+        if (value < 0) {
+            throw invalid_argument("Copies cannot be negative");
+        }
+        return value;
+    }
+
+public:
+    // Default constructor
+    Book() : Book("Untitled", "Unknown", 0) {}
+
+    // Constructor for title only
+    explicit Book(const string& bookTitle)
+        : Book(bookTitle, "Unknown", 1) {}
+
+    // Parameterized constructor
+    Book(const string& bookTitle, const string& bookAuthor,
+         int numberOfCopies)
+        : title(bookTitle),
+          author(bookAuthor),
+          copies(validateCopies(numberOfCopies)) {}
+
+    // Overloaded constructor
+    Book(const string& bookTitle, int numberOfCopies)
+        : Book(bookTitle, "Unknown", numberOfCopies) {}
+
+    void display() const {
+        cout << "Title: " << title
+             << " | Author: " << author
+             << " | Copies: " << copies << endl;
+    }
+};
+
+int main() {
+    try {
+        Book book1;
+        Book book2("The Alchemist");
+        Book book3("Wings of Fire", "A. P. J. Abdul Kalam", 5);
+        Book book4("Clean Code", 3);
+
+        book1.display();
+        book2.display();
+        book3.display();
+        book4.display();
+
+        Book book5("Invalid Book", "Unknown", -2);
+        book5.display();
+    }
+    catch (const invalid_argument& error) {
+        cout << "Invalid Book: " << error.what() << endl;
+    }
+
+    return 0;
+}
