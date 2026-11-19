@@ -1,0 +1,93 @@
+#include <iostream>
+using namespace std;
+
+// 1. Call by value: changes only the local copy.
+void concessionByValue(long long fee, int percent)
+{
+    fee -= fee * percent / 100;
+}
+
+// 2. Call by reference: changes the caller's variable.
+void concessionByReference(long long& fee, int percent)
+{
+    fee -= fee * percent / 100;
+}
+
+// 3. Call by pointer: changes the value at the supplied address.
+void concessionByPointer(long long* fee, int percent)
+{
+    if (fee != nullptr)
+        *fee -= *fee * percent / 100;
+}
+
+// Supplied Predict the Output program
+void change(int a, int& b, int* c)
+{
+    a += 10;
+    b += 10;
+    *c += 10;
+}
+
+int& bigger(int& p, int& q)
+{
+    return p > q ? p : q;
+}
+
+void show(int x, int y = 5, int z = 10)
+{
+    cout << x + y + z << ' ';
+}
+
+// Completed Code program
+void applyByValue(long long fee, int percent)
+{
+    fee -= fee * percent / 100;
+}
+
+void applyConcession(long long& fee, int percent)
+{
+    fee -= fee * percent / 100; // TODO 1 completed
+}
+
+int main()
+{
+    cout << "CALLING METHODS\n";
+
+    long long fee1 = 45000;
+    long long fee2 = 45000;
+    long long fee3 = 45000;
+
+    concessionByValue(fee1, 10);
+    concessionByReference(fee2, 10);
+    concessionByPointer(&fee3, 10);
+
+    cout << "Call by value     : " << fee1 << '\n';
+    cout << "Call by reference : " << fee2 << '\n';
+    cout << "Call by pointer   : " << fee3 << "\n\n";
+
+    cout << "PREDICT THE OUTPUT PROGRAM\n";
+
+    int a = 1, b = 2, c = 3;
+    change(a, b, &c);
+
+    cout << a << ' ' << b << ' ' << c << '\n';
+
+    bigger(a, c) = 100;
+    cout << a << ' ' << c << '\n';
+
+    show(1);
+    show(1, 2);
+    show(1, 2, 3);
+    cout << '\n';
+
+    cout << "\nCOMPLETE THE CODE\n";
+
+    long long hostelFee = 45000;
+    applyByValue(hostelFee, 10);
+    cout << "after call by value : " << hostelFee << '\n';
+
+    applyConcession(hostelFee, 10);
+    cout << "after call by reference: " << hostelFee << '\n';
+
+    return 0;
+}
