@@ -1,0 +1,92 @@
+#include <iostream>
+#include <memory>
+#include <vector>
+using namespace std;
+
+class Account {
+public:
+    virtual double rate() const {
+        return 3.5;
+    }
+
+    virtual void display() const {
+        cout << "General Account: " << rate() << "%\n";
+    }
+
+    virtual ~Account() {
+        cout << "Account destructor\n";
+    }
+};
+
+class SeniorAccount : public Account {
+private:
+    double* history;
+
+public:
+    SeniorAccount() : history(new double[100]{}) {
+        cout << "SeniorAccount constructor\n";
+    }
+
+    double rate() const override {
+        return 4.0;
+    }
+
+    void display() const override {
+        cout << "Senior Citizen Account: " << rate() << "%\n";
+    }
+
+    ~SeniorAccount() override {
+        delete[] history;
+        cout << "SeniorAccount destructor\n";
+    }
+};
+
+class SavingsAccount : public Account {
+public:
+    double rate() const override {
+        return 3.8;
+    }
+
+    void display() const override {
+        cout << "Savings Account: " << rate() << "%\n";
+    }
+
+    ~SavingsAccount() override {
+        cout << "SavingsAccount destructor\n";
+    }
+};
+
+int main() {
+    cout << "===== POLYMORPHISM USING BASE POINTERS =====\n";
+
+    vector<unique_ptr<Account>> accounts;
+
+    accounts.push_back(make_unique<Account>());
+    accounts.push_back(make_unique<SeniorAccount>());
+    accounts.push_back(make_unique<SavingsAccount>());
+
+    for (const auto& account : accounts) {
+        account->display();
+    }
+
+    cout << "\n===== VIRTUAL AND NON-VIRTUAL FUNCTION TEST =====\n";
+
+    SeniorAccount senior;
+    Account* p = &senior;
+
+    Account copy = senior;
+
+    cout << "Non-virtual rate(): " << p->Account::rate() << '\n';
+    cout << "Virtual rate(): " << p->rate() << '\n';
+    cout << "Sliced copy virtual rate(): " << copy.rate() << '\n';
+
+    cout << "\n===== OBJECT SLICING PREVENTION =====\n";
+
+    Account& reference = senior;
+    cout << "Reference virtual rate(): "
+         << reference.rate() << '\n';
+
+    cout << "\n===== ACCOUNTS WILL BE DESTROYED AUTOMATICALLY =====\n";
+
+    return 0;
+}
