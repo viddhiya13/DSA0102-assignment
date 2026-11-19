@@ -1,0 +1,103 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+class Money {
+private:
+    long long paise;
+
+public:
+    Money(long long rupees = 0, int p = 0)
+        : paise(rupees * 100 + p) {}
+
+    // Constructor for total paise
+    Money(long long totalPaise, bool)
+        : paise(totalPaise) {}
+
+    // Addition operator
+    Money operator+(const Money& other) const {
+        return Money(paise + other.paise, true);
+    }
+
+    // Subtraction operator
+    Money operator-(const Money& other) const {
+        return Money(paise - other.paise, true);
+    }
+
+    // Addition assignment operator
+    Money& operator+=(const Money& other) {
+        paise += other.paise;
+        return *this;
+    }
+
+    // Equality operator
+    bool operator==(const Money& other) const {
+        return paise == other.paise;
+    }
+
+    // Less than operator
+    bool operator<(const Money& other) const {
+        return paise < other.paise;
+    }
+
+    // Output stream operator
+    friend ostream& operator<<(ostream& out, const Money& m) {
+        long long value = m.paise;
+
+        if (value < 0) {
+            out << "-";
+            value = -value;
+        }
+
+        out << "Rs "
+            << value / 100
+            << "."
+            << setw(2)
+            << setfill('0')
+            << value % 100
+            << setfill(' ');
+
+        return out;
+    }
+};
+
+int main() {
+    Money a(120, 75);
+    Money b(79, 25);
+
+    Money c = a + b;
+
+    cout << c << endl;
+
+    cout << boolalpha;
+    cout << (c == Money(200)) << endl;
+
+    // Paise carry test
+    Money m1(0, 75);
+    Money m2(0, 50);
+
+    Money result = m1 + m2;
+
+    cout << "Paise Carry: " << result << endl;
+
+    // Subtraction
+    Money m3(10);
+    Money m4(15);
+
+    Money difference = m3 - m4;
+
+    cout << "Negative Amount: " << difference << endl;
+
+    // Addition assignment
+    Money total(100);
+
+    total += Money(50);
+
+    cout << "After Addition: " << total << endl;
+
+    // Comparison
+    cout << "Is a less than b? "
+         << (a < b) << endl;
+
+    return 0;
+}
