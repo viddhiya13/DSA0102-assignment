@@ -1,0 +1,120 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class SavingsAccount
+{
+private:
+    string accountNumber;
+    double balance;
+    string transactions[10];
+    int count;
+
+    void addTransaction(const string& details)
+    {
+        if (count < 10)
+        {
+            transactions[count] = details;
+            count++;
+        }
+        else
+        {
+            // Remove the oldest transaction by shifting left.
+            for (int i = 0; i < 9; i++)
+                transactions[i] = transactions[i + 1];
+
+            transactions[9] = details;
+        }
+    }
+
+public:
+    SavingsAccount(const string& number, double openingBalance)
+        : accountNumber(number), balance(openingBalance), count(0)
+    {
+        if (openingBalance >= 0)
+            addTransaction("Opening balance: Rs. " +
+                           to_string(openingBalance));
+    }
+
+    // Defined inside the class.
+    double getBalance() const
+    {
+        return balance;
+    }
+
+    // Defined inside the class.
+    string getAccountNumber() const
+    {
+        return accountNumber;
+    }
+
+    void deposit(double amount);
+    void withdraw(double amount);
+    void miniStatement() const;
+};
+
+// Defined outside the class using scope resolution.
+void SavingsAccount::deposit(double amount)
+{
+    if (amount <= 0)
+    {
+        cout << "Invalid deposit amount.\n";
+        return;
+    }
+
+    balance += amount;
+    addTransaction("Deposit: Rs. " + to_string(amount));
+    cout << "Deposit successful.\n";
+}
+
+void SavingsAccount::withdraw(double amount)
+{
+    if (amount <= 0)
+    {
+        cout << "Invalid withdrawal amount.\n";
+        return;
+    }
+
+    if (amount > balance)
+    {
+        cout << "Insufficient balance.\n";
+        return;
+    }
+
+    balance -= amount;
+    addTransaction("Withdrawal: Rs. " + to_string(amount));
+    cout << "Withdrawal successful.\n";
+}
+
+void SavingsAccount::miniStatement() const
+{
+    cout << "\nMINI STATEMENT\n";
+    cout << "Account number: " << accountNumber << '\n';
+    cout << "Current balance: Rs. " << balance << '\n';
+    cout << "Recent transactions:\n";
+
+    for (int i = 0; i < count; i++)
+        cout << i + 1 << ". " << transactions[i] << '\n';
+}
+
+int main()
+{
+    SavingsAccount account("SB1001", 5000);
+
+    account.deposit(1000);
+    account.withdraw(500);
+    account.deposit(750);
+    account.withdraw(250);
+    account.deposit(1200);
+    account.withdraw(300);
+    account.deposit(900);
+    account.withdraw(200);
+    account.deposit(600);
+    account.withdraw(100);
+    account.deposit(400);
+    account.withdraw(150);
+
+    account.miniStatement();
+
+    return 0;
+}
