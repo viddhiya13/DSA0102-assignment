@@ -1,0 +1,114 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class BusTicket
+{
+    static int issued;
+    static const int CAPACITY = 3;
+
+    int seat;
+    string name;
+
+public:
+    explicit BusTicket(const string& n) : seat(0), name(n)
+    {
+        // TODO 1 completed.
+        if (issued < CAPACITY)
+        {
+            issued++;
+            seat = issued;
+        }
+        else
+        {
+            seat = 0;
+        }
+    }
+
+    static int count()
+    {
+        // TODO 2 completed.
+        return issued;
+    }
+
+    void print() const
+    {
+        cout << name << ": "
+             << (seat ? "Seat " + to_string(seat) : string("Waiting"))
+             << '\n';
+    }
+};
+
+int BusTicket::issued = 0;
+
+// Demonstrates the shared count when a function is called twice.
+void createMoreTickets()
+{
+    BusTicket tickets[2] = {
+        BusTicket("Esha"),
+        BusTicket("Farhan")
+    };
+
+    for (const BusTicket& ticket : tickets)
+        ticket.print();
+
+    cout << "Issued inside function: " << BusTicket::count() << '\n';
+}
+
+// Supplied Predict the Output program.
+class Token
+{
+    static int next;
+    int id;
+
+public:
+    Token()
+    {
+        id = ++next;
+    }
+
+    int get() const
+    {
+        return id;
+    }
+
+    static int issued()
+    {
+        return next - 100;
+    }
+};
+
+int Token::next = 100;
+
+int main()
+{
+    cout << "BUS TICKETS\n";
+
+    BusTicket trip[4] = {
+        BusTicket("Asha"),
+        BusTicket("Bala"),
+        BusTicket("Chitra"),
+        BusTicket("Dev")
+    };
+
+    for (const BusTicket& ticket : trip)
+        ticket.print();
+
+    cout << "Issued: " << BusTicket::count() << '\n';
+
+    cout << "\nTICKETS CREATED INSIDE A FUNCTION\n";
+    createMoreTickets();
+    createMoreTickets();
+
+    cout << "\nPREDICT THE OUTPUT PROGRAM\n";
+
+    Token counter[3];
+    Token extra;
+
+    cout << counter[0].get() << ' '
+         << counter[2].get() << ' '
+         << extra.get() << ' '
+         << Token::issued() << '\n';
+
+    return 0;
+}
