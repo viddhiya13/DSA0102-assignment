@@ -1,0 +1,140 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Returns a reference to the highest array element.
+int& highestMark(int marks[], int size)
+{
+    int highestIndex = 0;
+
+    for (int i = 1; i < size; i++)
+    {
+        if (marks[i] > marks[highestIndex])
+            highestIndex = i;
+    }
+
+    return marks[highestIndex];
+}
+
+// Returns a const reference: caller cannot modify through this reference.
+const int& highestMarkReadOnly(const int marks[], int size)
+{
+    int highestIndex = 0;
+
+    for (int i = 1; i < size; i++)
+    {
+        if (marks[i] > marks[highestIndex])
+            highestIndex = i;
+    }
+
+    return marks[highestIndex];
+}
+
+// Returns a copy of the highest mark.
+int highestMarkCopy(const int marks[], int size)
+{
+    int highest = marks[0];
+
+    for (int i = 1; i < size; i++)
+    {
+        if (marks[i] > highest)
+            highest = marks[i];
+    }
+
+    return highest;
+}
+
+// Returns the index of the highest mark.
+int highestMarkIndex(const int marks[], int size)
+{
+    int highestIndex = 0;
+
+    for (int i = 1; i < size; i++)
+    {
+        if (marks[i] > marks[highestIndex])
+            highestIndex = i;
+    }
+
+    return highestIndex;
+}
+
+// Returns a pointer to the highest mark.
+int* highestMarkPointer(int marks[], int size)
+{
+    int highestIndex = highestMarkIndex(marks, size);
+    return &marks[highestIndex];
+}
+
+// Deliberately unsafe example.
+// The returned reference becomes dangling as soon as this function ends.
+// Do not call this function or use its returned reference.
+int& dangerousLocalReference()
+{
+    int localValue = 50;
+    return localValue; // Undefined behaviour if the dangling reference is used.
+}
+
+int main()
+{
+    int marks[5] = {78, 85, 91, 67, 88};
+
+    cout << "Original marks: ";
+    for (int mark : marks)
+        cout << mark << ' ';
+    cout << '\n';
+
+    // Modify the highest mark using a returned reference.
+    highestMark(marks, 5) += 2;
+
+    cout << "After moderation: ";
+    for (int mark : marks)
+        cout << mark << ' ';
+    cout << '\n';
+
+    // Read-only reference.
+    const int& readOnly = highestMarkReadOnly(marks, 5);
+    cout << "Highest mark using const reference: " << readOnly << '\n';
+
+    // Copy.
+    int copiedMark = highestMarkCopy(marks, 5);
+    copiedMark += 10;
+
+    cout << "Modified copy: " << copiedMark << '\n';
+    cout << "Original highest mark remains: "
+         << highestMarkCopy(marks, 5) << '\n';
+
+    // Index alternative.
+    int index = highestMarkIndex(marks, 5);
+    marks[index] += 1;
+    cout << "After index-based update: " << marks[index] << '\n';
+
+    // Pointer alternative.
+    int* highest = highestMarkPointer(marks, 5);
+    *highest += 1;
+    cout << "After pointer-based update: " << *highest << '\n';
+
+    // Vector growth demonstration.
+    vector<int> dynamicMarks = {70, 80, 90};
+
+    int* oldAddress = &dynamicMarks[2];
+    cout << "Vector before growth: ";
+    for (int mark : dynamicMarks)
+        cout << mark << ' ';
+    cout << '\n';
+
+    dynamicMarks.reserve(dynamicMarks.capacity() + 100);
+    dynamicMarks.push_back(95);
+
+    cout << "Vector after growth: ";
+    for (int mark : dynamicMarks)
+        cout << mark << ' ';
+    cout << '\n';
+
+    cout << "New highest mark: " << highestMarkCopy(
+        dynamicMarks.data(), static_cast<int>(dynamicMarks.size())) << '\n';
+
+    // Do not dereference oldAddress after vector reallocation.
+    // It may no longer point to a valid vector element.
+
+    return 0;
+}
