@@ -1,0 +1,284 @@
+
+#include <iostream>
+#include <iomanip>
+#include <array>
+#include <string>
+using namespace std;
+
+// Updated metro zones
+enum class Zone
+{
+    Inner,
+    Middle,
+    Outer,
+    Airport
+};
+
+// Fare table in paise
+constexpr array<long long, 4> FARE_TABLE =
+{
+    1000,
+    2000,
+    3000,
+    6000
+};
+
+constexpr int PEAK_SURCHARGE_PERCENT = 20;
+constexpr int WEEKEND_DISCOUNT_PERCENT = 10;
+
+constexpr long long MIN_BALANCE_PAISE = 5000;
+
+// Passenger class
+class Passenger
+{
+private:
+    string name;
+
+public:
+    explicit Passenger(string n)
+        : name(n) {}
+
+    string getName() const
+    {
+        return name;
+    }
+};
+
+// Monthly pass class
+class MonthlyPass
+{
+private:
+    array<bool, 4> allowedZones;
+    bool active;
+
+public:
+    MonthlyPass(Zone firstZone, Zone secondZone)
+        : allowedZones{false, false, false, false},
+          active(true)
+    {
+        allowedZones[static_cast<int>(firstZone)] = true;
+        allowedZones[static_cast<int>(secondZone)] = true;
+    }
+
+    bool allowsZone(Zone zone) const
+    {
+        int index = static_cast<int>(zone);
+
+        return active &&
+               index >= 0 &&
+               index < 4 &&
+               allowedZones[index];
+    }
+
+    void deactivate()
+    {
+        active = false;
+    }
+};
+
+// Updated fare calculator
+class FareCalculator
+{
+public:
+    static bool isPeakHour(int hour)
+    {
+        return (hour >= 8 && hour < 10) ||
+               (hour >= 17 && hour < 20);
+    }
+
+    static long long calculateFare(
+        Zone zone,
+        int hour,
+        bool weekend)
+    {
+        int index = static_cast<int>(zone);
+
+        if (index < 0 || index >= 4 ||
+            hour < 0 || hour > 23)
+        {
+            return -1;
+        }
+
+        long long fare = FARE_TABLE[index];
+
+        // Weekend discount does not combine with peak surcharge
+        if (weekend)
+        {
+            fare = fare *
+                   (100 - WEEKEND_DISCOUNT_PERCENT) / 100;
+        }
+        else if (isPeakHour(hour))
+        {
+            fare = fare *
+                   (100 + PEAK_SURCHARGE_PERCENT) / 100;
+        }
+
+        return fare;
+    }
+};
+
+// SmartCard class
+class SmartCard
+{
+private:
+    int cardNumber;
+    long long balance;
+
+public:
+    SmartCard(int number, long long amount)
+        : cardNumber(number), balance(amount) {}
+
+    bool canTravel(long long fare) const
+    {
+        return fare >= 0 &&
+               balance >= fare &&
+               balance - fare >= MIN_BALANCE_PAISE;
+    }
+
+    bool deduct(long long fare)
+    {
+        if (!canTravel(fare))
+        {
+            return false;
+        }
+
+        balance -= fare;
+        return true;
+    }
+
+    long long getBalance() const
+    {
+        return balance;
+    }
+
+    void recharge(long long amount)
+    {
+        if (amount > 0 &&
+            balance <= 1000000000000LL - amount)
+        {
+            balance += amount;
+        }
+    }
+
+    void display() const
+    {
+        cout << "Card Number: " << cardNumber << endl;
+
+        cout << "Balance: Rs "
+             << balance / 100 << "."
+             << setw(2) << setfill('0')
+             << balance % 100 << setfill(' ')
+             << endl;
+    }
+};
+
+// Journey class
+class Journey
+{
+private:
+    Zone zone;
+    int hour;
+    bool weekend;
+
+public:
+    Journey(Zone z, int h, bool w)
+        : zone(z), hour(h), weekend(w) {}
+
+    void process(SmartCard& card,
+                 const MonthlyPass& pass) const
+    {
+        // Monthly pass allows free travel in selected zones
+        if (pass.allowsZone(zone))
+        {
+            cout << "Monthly Pass: Journey Approved" << endl;
+            return;
+        }
+
+        long long fare =
+            FareCalculator::calculateFare(
+                zone, hour, weekend);
+
+        if (fare < 0)
+        {
+            cout << "Invalid Journey" << endl;
+            return;
+        }
+
+        cout << "Fare: Rs "
+             << fare / 100 << "."
+             << setw(2) << setfill('0')
+             << fare % 100 << setfill(' ')
+             << endl;
+
+        if (card.deduct(fare))
+        {
+            cout << "Journey Approved" << endl;
+        }
+        else
+        {
+            cout << "Journey Denied: Low Balance" << endl;
+        }
+
+        cout << "Remaining Balance: Rs "
+             << card.getBalance() / 100 << "."
+             << setw(2) << setfill('0')
+             << card.getBalance() % 100
+             << setfill(' ') << endl;
+    }
+};
+
+int main()
+{
+    cout << "NAMMA METRO UPDATED SMART CARD SYSTEM" << endl;
+    cout << "--------------------------------------" << endl;
+
+    Passenger passenger("Arun");
+
+    SmartCard card(1001, 30000);
+
+    // Monthly pass valid for Inner and Middle zones
+    MonthlyPass pass(Zone::Inner, Zone::Middle);
+
+    cout << "Passenger: "
+         << passenger.getName() << endl;
+
+    cout << "\nInitial Card Details" << endl;
+    card.display();
+
+    cout << "\nJOURNEY 1 - INNER ZONE" << endl;
+    Journey j1(Zone::Inner, 9, false);
+    j1.process(card, pass);
+
+    cout << "\nJOURNEY 2 - MIDDLE ZONE" << endl;
+    Journey j2(Zone::Middle, 18, false);
+    j2.process(card, pass);
+
+    cout << "\nJOURNEY 3 - OUTER ZONE PEAK" << endl;
+    Journey j3(Zone::Outer, 9, false);
+    j3.process(card, pass);
+
+    cout << "\nJOURNEY 4 - AIRPORT ZONE" << endl;
+    Journey j4(Zone::Airport, 14, false);
+    j4.process(card, pass);
+
+    cout << "\nJOURNEY 5 - AIRPORT WEEKEND" << endl;
+    Journey j5(Zone::Airport, 18, true);
+    j5.process(card, pass);
+
+    cout << "\nFINAL SMART CARD DETAILS" << endl;
+    card.display();
+
+    cout << "\nMONTHLY PASS DEACTIVATION" << endl;
+    pass.deactivate();
+
+    cout << "Monthly pass deactivated." << endl;
+
+    cout << "\nJOURNEY AFTER PASS DEACTIVATION" << endl;
+    Journey j6(Zone::Inner, 12, false);
+    j6.process(card, pass);
+
+    cout << "\nFINAL BALANCE" << endl;
+    card.display();
+
+    return 0;
+}
