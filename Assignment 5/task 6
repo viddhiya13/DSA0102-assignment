@@ -1,0 +1,127 @@
+#include <iostream>
+#include <chrono>
+using namespace std;
+using namespace std::chrono;
+
+class Time
+{
+    int h, m;
+
+public:
+    Time(int hh, int mm) : h(hh), m(mm) {}
+
+    friend int minutesBetween(const Time& a, const Time& b);
+    friend bool earlier(const Time& a, const Time& b);
+
+    friend inline int minutesBetweenInline(const Time& a, const Time& b);
+    friend int minutesBetweenNormal(const Time& a, const Time& b);
+    friend bool earlierInline(const Time& a, const Time& b);
+};
+
+int minutesBetween(const Time& a, const Time& b)
+{
+    int first = a.h * 60 + a.m;
+    int second = b.h * 60 + b.m;
+
+    int difference = first - second;
+
+    return difference < 0 ? -difference : difference;
+}
+
+bool earlier(const Time& a, const Time& b)
+{
+    int first = a.h * 60 + a.m;
+    int second = b.h * 60 + b.m;
+
+    return first < second;
+}
+
+// Inline version.
+inline int minutesBetweenInline(const Time& a, const Time& b)
+{
+    int first = a.h * 60 + a.m;
+    int second = b.h * 60 + b.m;
+
+    int difference = first - second;
+
+    return difference < 0 ? -difference : difference;
+}
+
+// Ordinary non-inline version.
+int minutesBetweenNormal(const Time& a, const Time& b)
+{
+    int first = a.h * 60 + a.m;
+    int second = b.h * 60 + b.m;
+
+    int difference = first - second;
+
+    return difference < 0 ? -difference : difference;
+}
+
+bool earlierInline(const Time& a, const Time& b)
+{
+    int first = a.h * 60 + a.m;
+    int second = b.h * 60 + b.m;
+
+    return first < second;
+}
+
+int main()
+{
+    Time departure(9, 45);
+    Time arrival(13, 10);
+
+    cout << minutesBetween(departure, arrival) << ' '
+         << boolalpha
+         << earlier(arrival, departure) << '\n';
+
+    // Correctness tests.
+    Time morning(11, 50);
+    Time afternoon(12, 10);
+    Time sameTime1(14, 30);
+    Time sameTime2(14, 30);
+
+    cout << "Minutes across noon: "
+         << minutesBetween(morning, afternoon) << '\n';
+
+    cout << "Morning earlier than afternoon: "
+         << earlier(morning, afternoon) << '\n';
+
+    cout << "Same time difference: "
+         << minutesBetween(sameTime1, sameTime2) << '\n';
+
+    cout << "Same time earlier result: "
+         << earlier(sameTime1, sameTime2) << '\n';
+
+    // Performance test: 10,000,000 calls.
+    const int ITERATIONS = 10000000;
+    volatile long long resultSink = 0;
+
+    auto startInline = high_resolution_clock::now();
+
+    for (int i = 0; i < ITERATIONS; i++)
+        resultSink += minutesBetweenInline(departure, arrival);
+
+    auto endInline = high_resolution_clock::now();
+
+    auto startNormal = high_resolution_clock::now();
+
+    for (int i = 0; i < ITERATIONS; i++)
+        resultSink += minutesBetweenNormal(departure, arrival);
+
+    auto endNormal = high_resolution_clock::now();
+
+    double inlineTime =
+        duration<double, milli>(endInline - startInline).count();
+
+    double normalTime =
+        duration<double, milli>(endNormal - startNormal).count();
+
+    cout << "\nPERFORMANCE RESULTS\n";
+    cout << "Number of calls: " << ITERATIONS << '\n';
+    cout << "Inline function time: " << inlineTime << " ms\n";
+    cout << "Normal function time: " << normalTime << " ms\n";
+    cout << "Result sink: " << resultSink << '\n';
+
+    return 0;
+}
