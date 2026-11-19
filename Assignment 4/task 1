@@ -1,0 +1,113 @@
+#include <iostream>
+#include <iomanip>
+#include <memory>
+#include <string>
+#include <vector>
+using namespace std;
+
+class Staff {
+protected:
+    string name;
+    int id;
+    double basic;
+    static constexpr double DA_RATE = 0.42;
+
+public:
+    Staff(const string& n, int i, double b)
+        : name(n), id(i), basic(b) {}
+
+    virtual double pay() const = 0;
+
+    virtual void display() const {
+        cout << left << setw(15) << name
+             << setw(10) << id
+             << fixed << setprecision(2) << pay() << '\n';
+    }
+
+    virtual ~Staff() = default;
+};
+
+class Professor : public Staff {
+private:
+    double research;
+
+public:
+    Professor(const string& n, int i, double b, double r)
+        : Staff(n, i, b), research(r) {}
+
+    double pay() const override {
+        return basic + basic * DA_RATE + research;
+    }
+};
+
+class LabAssistant : public Staff {
+public:
+    LabAssistant(const string& n, int i, double b)
+        : Staff(n, i, b) {}
+
+    double pay() const override {
+        return basic + basic * DA_RATE;
+    }
+};
+
+class GuestFaculty : public Staff {
+private:
+    double hours;
+    double rate;
+
+public:
+    GuestFaculty(const string& n, int i, double h, double r)
+        : Staff(n, i, 0), hours(h), rate(r) {}
+
+    double pay() const override {
+        return hours * rate;
+    }
+};
+
+class TechnicalAssistant : public Staff {
+private:
+    double allowance;
+
+public:
+    TechnicalAssistant(const string& n, int i, double b, double a)
+        : Staff(n, i, b), allowance(a) {}
+
+    double pay() const override {
+        return basic + basic * DA_RATE + allowance;
+    }
+};
+
+int main() {
+    vector<unique_ptr<Staff>> employees;
+
+    employees.push_back(make_unique<Professor>(
+        "Arun", 101, 50000, 10000));
+
+    employees.push_back(make_unique<LabAssistant>(
+        "Priya", 102, 30000));
+
+    employees.push_back(make_unique<GuestFaculty>(
+        "Kumar", 103, 20, 1000));
+
+    employees.push_back(make_unique<TechnicalAssistant>(
+        "Meena", 104, 25000, 3000));
+
+    cout << "STAFF PAYROLL\n";
+    cout << "---------------------------------------------\n";
+    cout << left << setw(15) << "Name"
+         << setw(10) << "ID" << "Pay\n";
+    cout << "---------------------------------------------\n";
+
+    double total = 0;
+
+    for (const auto& employee : employees) {
+        employee->display();
+        total += employee->pay();
+    }
+
+    cout << "---------------------------------------------\n";
+    cout << "Total Payroll: " << fixed << setprecision(2)
+         << total << '\n';
+
+    return 0;
+}
