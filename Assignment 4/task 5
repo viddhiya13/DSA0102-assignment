@@ -1,0 +1,144 @@
+#include <iomanip>
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Cart {
+private:
+    string items[10];
+    double prices[10];
+    int n = 0;
+    double discount = 0;
+
+public:
+    Cart& add(const string& item, double price) {
+        if (n < 10 && price >= 0) {
+            this->items[n] = item;
+            this->prices[n] = price;
+            ++n;
+        } else {
+            cout << "Cannot add item: cart is full or price is invalid.\n";
+        }
+
+        return *this;
+    }
+
+    Cart& setDiscount(double discount) {
+        this->discount = discount;
+
+        if (this->discount < 0)
+            this->discount = 0;
+
+        if (this->discount > 100)
+            this->discount = 100;
+
+        return *this;
+    }
+
+    double total() const {
+        double t = 0;
+
+        for (int i = 0; i < n; ++i) {
+            t += prices[i];
+        }
+
+        return t * (100 - discount) / 100;
+    }
+
+    void display() const {
+        cout << "\nShopping Cart\n";
+
+        for (int i = 0; i < n; ++i) {
+            cout << items[i] << " - Rs. "
+                 << fixed << setprecision(2)
+                 << prices[i] << '\n';
+        }
+
+        cout << "Discount: " << discount << "%\n";
+        cout << "Total: Rs. " << total() << '\n';
+    }
+};
+
+int main() {
+    cout << fixed << setprecision(2);
+
+    // (a) Directly using an object
+    cout << "===== DIRECT OBJECT =====\n";
+
+    Cart c1;
+    c1.add("Rice", 60).add("Dal", 120).setDiscount(10);
+    c1.display();
+
+    // (b) Using a pointer with ->
+    cout << "\n===== POINTER TO OBJECT =====\n";
+
+    Cart c2;
+    Cart* ptr = &c2;
+
+    ptr->add("Oil", 180);
+    ptr->add("Sugar", 50);
+    ptr->display();
+
+    // (c) Using a reference
+    cout << "\n===== REFERENCE TO OBJECT =====\n";
+
+    Cart c3;
+    Cart& ref = c3;
+
+    ref.add("Milk", 40);
+    ref.add("Bread", 35);
+    ref.display();
+
+    // (d) Dynamic object using new and delete
+    cout << "\n===== DYNAMIC OBJECT =====\n";
+
+    Cart* dynamicCart = new Cart;
+
+    dynamicCart->add("Apple", 100);
+    dynamicCart->add("Orange", 80);
+    dynamicCart->setDiscount(5);
+    dynamicCart->display();
+
+    delete dynamicCart;
+    dynamicCart = nullptr;
+
+    // Array of pointers to Cart objects
+    cout << "\n===== ARRAY OF CART POINTERS =====\n";
+
+    Cart cart1;
+    Cart cart2;
+    Cart cart3;
+
+    cart1.add("Rice", 100).add("Dal", 50);
+    cart2.add("Oil", 200).add("Sugar", 100);
+    cart3.add("Milk", 40).add("Fruits", 150);
+
+    Cart* carts[3] = { &cart1, &cart2, &cart3 };
+
+    int highestIndex = 0;
+
+    for (int i = 1; i < 3; ++i) {
+        if (carts[i]->total() > carts[highestIndex]->total()) {
+            highestIndex = i;
+        }
+    }
+
+    cout << "Cart with highest total: "
+         << highestIndex + 1 << '\n';
+
+    cout << "Highest total: Rs. "
+         << carts[highestIndex]->total() << '\n';
+
+    // Assignment's complete-code example
+    cout << "\n===== ASSIGNMENT EXPECTED OUTPUT TEST =====\n";
+
+    Cart c;
+    c.add("Rice", 60).add("Dal", 120).setDiscount(10);
+
+    Cart* p = &c;
+    p->add("Oil", 180);
+
+    cout << p->total() << '\n';
+
+    return 0;
+}
